@@ -24,7 +24,8 @@ public class TestArrayHeapFunctionality extends BaseTest {
         assertEquals(1, heap.size());
         assertTrue(!heap.isEmpty());
     }
-
+    
+    // new tests below
     @Test(timeout = SECOND)
     public void testInsertandremoveMinBasic() {
         IPriorityQueue<Integer> heap = this.makeInstance();
@@ -131,20 +132,17 @@ public class TestArrayHeapFunctionality extends BaseTest {
             heap.insert(i);
         }
         assertEquals(0, heap.peekMin());
-        assertEquals(101, heap.size());
+        assertEquals(101,heap.size());
     }
-
+    
     @Test(timeout = SECOND)
     public void testInsertRandomly() {
         IPriorityQueue<Integer> heap = this.makeInstance();
-        heap.insert(7);
-        heap.insert(9);
-        heap.insert(1);
-        heap.insert(0);
-        heap.insert(1);
-        heap.insert(6);
-
-        assertEquals(0, heap.peekMin());
-        assertEquals(6, heap.size());
+        Random rand = new Random(); 
+        for (int i = 0; i < 100; i++) {
+            int randomNum = rand.nextInt(100);
+            heap.insert(randomNum);
+        }
+        assertTrue(!heap.isEmpty());
     }
 }
