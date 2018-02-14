@@ -40,7 +40,6 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         return (T[]) (new Comparable[size]);
     }
     
-    // empty or one element afterwards don't need to do anything
     @Override
     public T removeMin() {
         if (this.size == 0) {
@@ -50,15 +49,18 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         this.heap[0] = this.heap[this.size - 1];
         this.heap[this.size - 1] = null;
         this.size--;
+        // empty or one element afterwards don't need to do anything
         if (this.size > 1) {
             percolateDown(0);
         }
         return min;
     }
 
+    // base case does nothing
+    // still confused???
     // null children?
-    // base case?
     private void percolateDown(int index) {
+        T temp = this.heap[index];  // parent
         int newIndex = index;
         int min = 10000;
         for (int j = 1; j <= NUM_CHILDREN; j++) {
@@ -68,6 +70,8 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
                 newIndex = childIndex;
             }
         }
+        this.heap[index] = this.heap[newIndex];  // parent = child
+        this.heap[newIndex] = temp;  // child = parent
         percolateDown(newIndex);
     }
     
@@ -79,11 +83,40 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         return this.heap[0];
     }
 
-    // percolate up
     @Override
     public void insert(T item) {
-        // T parent = Math.floor((index - 1) / NUM_CHILDREN);
-        throw new NotYetImplementedException();
+        if (item == null) {
+            throw new IllegalArgumentException();
+        }
+        if (this.size == this.heap.length) {
+            this.doubleArraySize();
+        }
+        this.heap[this.size] = item;
+        this.size++;
+        if (this.size > 1) {
+            percolateUp(this.size - 1);
+        }
+    }
+    
+    private void doubleArraySize() {
+        T[] tempHeap = this.makeArrayOfT(this.heap.length * 2);
+        for (int i = 0; i < this.size; i++) {
+            tempHeap[i] = this.heap[i];
+        }
+        this.heap = tempHeap;
+    }
+    
+    // base case does nothing
+    // can temp store the data?
+    private void percolateUp(int index) {
+        T parent = this.heap[(index - 1) / NUM_CHILDREN];
+        T child = this.heap[index];
+        if (parent.compareTo(child) >= 0) {
+            T temp = this.heap[index];  // child
+            this.heap[index] = this.heap[(index - 1) / NUM_CHILDREN];  // child = parent
+            this.heap[(index - 1) / NUM_CHILDREN] = temp;  // parent = child
+            percolateUp((index - 1) / NUM_CHILDREN);
+        }
     }
 
     @Override
