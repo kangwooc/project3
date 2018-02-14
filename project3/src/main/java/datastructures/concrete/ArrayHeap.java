@@ -61,7 +61,7 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     private void percolateDown(int index) {
         T temp = this.heap[index];  // parent
         int newIndex = index;
-        int min = 10000;
+        int min = Integer.MAX_VALUE;
         for (int j = 1; j <= NUM_CHILDREN; j++) {
             int childIndex = NUM_CHILDREN * index + j;
             int difference = this.heap[index].compareTo(this.heap[childIndex]);
