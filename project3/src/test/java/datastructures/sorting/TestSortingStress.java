@@ -14,7 +14,7 @@ import static org.junit.Assert.assertTrue;
 public class TestSortingStress extends BaseTest {
     @Test(timeout = 10 * SECOND)
     public void testPlaceholder() {
-
+        
         assertTrue(true);
     }
 

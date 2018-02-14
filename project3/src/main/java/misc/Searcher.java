@@ -41,14 +41,13 @@ public class Searcher {
         IList<T> output = new DoubleLinkedList<>();
 
         for (int i = 0; i < input.size(); i++) {
-            if (input.remove().compareTo(heap.peekMin()) > 0) {
-                heap.insert(input.remove());
-            } else {
-                heap.
-            }
+            heap.insert(input.remove());
         }
 
         if (k > input.size()) {
+            while (heap.size() == k) {
+                heap.removeMin();
+            }
             while (!heap.isEmpty()) {
                 output.add(heap.removeMin());
             }
