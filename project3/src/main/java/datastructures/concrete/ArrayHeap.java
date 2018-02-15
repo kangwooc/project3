@@ -56,22 +56,22 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     }
 
     // base case does nothing
-    // still confused???
-    // null children?
     private void percolateDown(int index) {
-        T temp = this.heap[index];  // parent
-        int newIndex = index;
-        int min = Integer.MAX_VALUE;
-        for (int j = 1; j <= NUM_CHILDREN; j++) {
-            int childIndex = NUM_CHILDREN * index + j;
-            int difference = this.heap[index].compareTo(this.heap[childIndex]);
-            if (difference < min) {
-                newIndex = childIndex;
+        if (NUM_CHILDREN * index + 1 < this.size - 1) {
+            T temp = this.heap[index];  // parent
+            int newIndex = index;
+            int min = this.heap[index].compareTo(this.heap[NUM_CHILDREN * index + 1]);
+            for (int j = 1; j <= NUM_CHILDREN; j++) {
+                int childIndex = NUM_CHILDREN * index + j;
+                int difference = this.heap[index].compareTo(this.heap[childIndex]);
+                if (difference < min) {
+                    newIndex = childIndex;
+                }
             }
+            this.heap[index] = this.heap[newIndex];  // parent = child
+            this.heap[newIndex] = temp;  // child = parent
+            percolateDown(newIndex);
         }
-        this.heap[index] = this.heap[newIndex];  // parent = child
-        this.heap[newIndex] = temp;  // child = parent
-        percolateDown(newIndex);
     }
     
     @Override
@@ -105,15 +105,14 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         this.heap = tempHeap;
     }
     
-    // base case does nothing
-    // can temp store the data?
+    // PROBLEM WITH INFINITE LOOP
     private void percolateUp(int index) {
         T parent = this.heap[(index - 1) / NUM_CHILDREN];
         T child = this.heap[index];
         if (parent.compareTo(child) >= 0) {
-            T temp = this.heap[index];  // child
-            this.heap[index] = this.heap[(index - 1) / NUM_CHILDREN];  // child = parent
-            this.heap[(index - 1) / NUM_CHILDREN] = temp;  // parent = child
+            T temp = child;  // child
+            child = parent;  // child = parent
+            parent = temp;  // parent = child
             percolateUp((index - 1) / NUM_CHILDREN);
         }
     }
