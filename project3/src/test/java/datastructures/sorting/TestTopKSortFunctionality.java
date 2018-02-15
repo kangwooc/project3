@@ -7,6 +7,10 @@ import misc.Searcher;
 
 import static org.junit.Assert.fail;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.Test;
 
 /**
@@ -27,7 +31,7 @@ public class TestTopKSortFunctionality extends BaseTest {
     }
 
     @Test(timeout = SECOND)
-    public void testReverselySort() {
+    public void testSortingReversely() {
         IList<Integer> list = new DoubleLinkedList<>();
         for (int i = 20; i >= 0; i--) {
             list.add(i);
@@ -74,6 +78,28 @@ public class TestTopKSortFunctionality extends BaseTest {
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
 
+        }
+    }
+
+    @Test(timeout = SECOND)
+    public void testSortingRandomList() {
+        IList<Integer> list1 = new DoubleLinkedList<>();
+        list1.add(3);
+        list1.add(4);
+        list1.add(1);
+        list1.add(5);
+        list1.add(0);
+        List<Integer> list2 = new LinkedList<>();
+        list2.add(3);
+        list2.add(4);
+        list2.add(1);
+        list2.add(5);
+        list2.add(0);
+        IList<Integer> top = Searcher.topKSort(5, list1);
+        Collections.sort(list2);
+        assertEquals(5, top.size());
+        for (int i = 0; i < top.size(); i++) {
+            assertEquals(list2.get(i), top.get(i));
         }
     }
 }

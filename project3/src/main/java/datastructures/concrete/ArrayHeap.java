@@ -41,7 +41,7 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     
     @Override
     public T removeMin() {
-        if (this.size == 0) {
+        if (isEmpty()) {
             throw new EmptyContainerException();
         }
         T min = this.heap[0];
@@ -76,7 +76,7 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     
     @Override
     public T peekMin() {
-        if (this.size == 0) {
+        if (isEmpty()) {
             throw new EmptyContainerException();
         }
         return this.heap[0];

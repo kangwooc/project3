@@ -69,6 +69,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
         } catch (EmptyContainerException ex) {
 
         }
+        assertEquals(0, heap.size());
         assertTrue(heap.isEmpty());
     }
 
