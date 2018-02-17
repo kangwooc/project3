@@ -36,23 +36,18 @@ public class Searcher {
         if (k < 0) {
             throw new IllegalArgumentException();
         }
-
         IPriorityQueue<T> heap = new ArrayHeap<>();
         IList<T> output = new DoubleLinkedList<>();
-
-        for (int i = 0; i < input.size(); i++) {
-            heap.insert(input.get(i));
-        }
-
-        if (k > input.size()) {
-            while (heap.size() != k) {
-                heap.removeMin();
+        if (k > 0) {
+            for (T item : input) {
+                if (heap.size() < k) {
+                    heap.insert(item);
+                } else if (heap.peekMin().compareTo(item) < 0) {
+                    heap.removeMin();
+                    heap.insert(item);
+                }
             }
             while (!heap.isEmpty()) {
-                output.add(heap.removeMin());
-            }
-        } else {
-            for (int i = 0; i < k; i++) {
                 output.add(heap.removeMin());
             }
         }

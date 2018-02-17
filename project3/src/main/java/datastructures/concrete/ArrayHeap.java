@@ -16,16 +16,16 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     private T[] heap;
 
     // Feel free to add more fields and constants.
-    private int size;
+    private int heapSize;
 
     public ArrayHeap() {
         this.heap = this.makeArrayOfT(21);
-        this.size = 0;
+        this.heapSize = 0;
     }
 
     /**
-     * This method will return a new, empty array of the given size
-     * that can contain elements of type T.
+     * This method will return a new, empty array of the given heapSize that can
+     * contain elements of type T.
      *
      * Note that each element in the array will initially be null.
      */
@@ -38,45 +38,48 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         // works, and should not modify it in any way.
         return (T[]) (new Comparable[size]);
     }
-    
+
     @Override
     public T removeMin() {
-        if (isEmpty()) {
+        if (this.heapSize == 0) {
             throw new EmptyContainerException();
         }
         T min = this.heap[0];
-        this.heap[0] = this.heap[this.size - 1];
-        this.heap[this.size - 1] = null;
-        this.size--;
+        this.heap[0] = this.heap[this.heapSize - 1];
+        this.heap[this.heapSize - 1] = null;
+        this.heapSize--;
         // empty or one element afterwards don't need to do anything
-        if (this.size > 1) {
+        if (this.heapSize > 1) {
             percolateDown(0);
         }
         return min;
     }
 
-    // base case does nothing
     private void percolateDown(int index) {
-        if (NUM_CHILDREN * index + 1 < this.size - 1) {
-            T temp = this.heap[index];  // parent
-            int newIndex = index;
-            int min = this.heap[index].compareTo(this.heap[NUM_CHILDREN * index + 1]);
+        if (NUM_CHILDREN * index + 1 <= this.heapSize - 1) {
+            T temp = this.heap[index]; // parent
+            int newIndex = NUM_CHILDREN * index + 1;
+            T min = this.heap[NUM_CHILDREN * index + 1];
             for (int j = 1; j <= NUM_CHILDREN; j++) {
-                int childIndex = NUM_CHILDREN * index + j;
-                int difference = this.heap[index].compareTo(this.heap[childIndex]);
-                if (difference < min) {
-                    newIndex = childIndex;
+                if (this.heap[NUM_CHILDREN * index + j] != null) {
+                    T current = this.heap[NUM_CHILDREN * index + j];
+                    if (current.compareTo(min) < 0) {
+                        min = current;
+                        newIndex = NUM_CHILDREN * index + j;
+                    }
                 }
             }
-            this.heap[index] = this.heap[newIndex];  // parent = child
-            this.heap[newIndex] = temp;  // child = parent
-            percolateDown(newIndex);
+            if (this.heap[index].compareTo(this.heap[newIndex]) > 0) {
+                this.heap[index] = this.heap[newIndex]; // parent = child
+                this.heap[newIndex] = temp; // child = parent
+                percolateDown(newIndex);
+            }
         }
     }
-    
+
     @Override
     public T peekMin() {
-        if (isEmpty()) {
+        if (this.heapSize == 0) {
             throw new EmptyContainerException();
         }
         return this.heap[0];
@@ -87,38 +90,39 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         if (item == null) {
             throw new IllegalArgumentException();
         }
-        if (this.size == this.heap.length) {
-            this.doubleArraySize();
+        if (this.heapSize == this.heap.length) {
+            this.doubleArrayheapSize();
         }
-        this.heap[this.size] = item;
-        this.size++;
-        if (this.size > 1) {
-            percolateUp(this.size - 1);
+        this.heap[this.heapSize] = item;
+        this.heapSize++;
+        if (this.heapSize > 1) {
+            percolateUp(this.heapSize - 1);
         }
     }
-    
-    private void doubleArraySize() {
+
+    private void doubleArrayheapSize() {
         T[] tempHeap = this.makeArrayOfT(this.heap.length * 2);
-        for (int i = 0; i < this.size; i++) {
+        for (int i = 0; i < this.heapSize; i++) {
             tempHeap[i] = this.heap[i];
         }
         this.heap = tempHeap;
     }
-    
-    // PROBLEM WITH INFINITE LOOP
+
     private void percolateUp(int index) {
-        T parent = this.heap[(index - 1) / NUM_CHILDREN];
-        T child = this.heap[index];
-        if (parent.compareTo(child) >= 0) {
-            T temp = child;  // child
-            child = parent;  // child = parent
-            parent = temp;  // parent = child
-            percolateUp((index - 1) / NUM_CHILDREN);
+        if (index > 0) {
+            T parent = this.heap[(index - 1) / NUM_CHILDREN];
+            T child = this.heap[index];
+            if (parent.compareTo(child) >= 0) {
+                T temp = this.heap[index]; // child
+                this.heap[index] = this.heap[(index - 1) / NUM_CHILDREN]; // child = parent
+                this.heap[(index - 1) / NUM_CHILDREN] = temp; // parent = child
+                percolateUp((index - 1) / NUM_CHILDREN);
+            }
         }
     }
 
     @Override
     public int size() {
-        return this.size;
+        return this.heapSize;
     }
 }

@@ -31,7 +31,7 @@ public class TestTopKSortFunctionality extends BaseTest {
     }
 
     @Test(timeout = SECOND)
-    public void testSortingReversely() {
+    public void testSortingReversedList() {
         IList<Integer> list = new DoubleLinkedList<>();
         for (int i = 20; i >= 0; i--) {
             list.add(i);
@@ -39,7 +39,7 @@ public class TestTopKSortFunctionality extends BaseTest {
         IList<Integer> top = Searcher.topKSort(5, list);
         assertEquals(5, top.size());
         for (int i = 0; i < top.size(); i++) {
-            assertEquals(15 + i, top.get(i));
+            assertEquals(16 + i, top.get(i));
         }
     }
 
@@ -77,7 +77,7 @@ public class TestTopKSortFunctionality extends BaseTest {
             Searcher.topKSort(-1, list);
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
-
+            // This is ok: do nothing
         }
     }
 

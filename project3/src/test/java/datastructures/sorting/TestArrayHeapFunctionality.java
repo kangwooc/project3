@@ -32,9 +32,10 @@ public class TestArrayHeapFunctionality extends BaseTest {
         for (int i = 0; i < 3; i++) {
             heap.insert(i);
         }
-        assertEquals(0, heap.removeMin());
-        assertEquals(1, heap.removeMin());
-        assertEquals(2, heap.removeMin());
+
+        for (int i = 0; i < 3; i++) {
+            assertEquals(i, heap.removeMin());
+        }
         assertTrue(heap.isEmpty());
     }
 
@@ -46,10 +47,11 @@ public class TestArrayHeapFunctionality extends BaseTest {
         }
         assertEquals(0, heap.peekMin());
         assertEquals(101, heap.size());
-        for (int i = 0; i < heap.size(); i++) {
-            heap.removeMin();
+        int i = 0;
+        while (!heap.isEmpty()) {
+            assertEquals(i, heap.removeMin());
+            i++;
         }
-        assertTrue(heap.isEmpty());
     }
 
     @Test(timeout = SECOND)
@@ -59,7 +61,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
             heap.removeMin();
             fail("Expected EmptyContainerException");
         } catch (EmptyContainerException ex) {
-
+            // This is ok: do nothing
         }
         heap.insert(3);
         heap.removeMin();
@@ -67,9 +69,8 @@ public class TestArrayHeapFunctionality extends BaseTest {
             heap.removeMin();
             fail("Expected EmptyContainerException");
         } catch (EmptyContainerException ex) {
-
+            // This is ok: do nothing
         }
-        assertEquals(0, heap.size());
         assertTrue(heap.isEmpty());
     }
 
@@ -80,7 +81,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
             heap.insert(null);
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
-
+            // This is ok: do nothing
         }
         for (int i = 100; i >= 0; i--) {
             heap.insert(i);
@@ -89,7 +90,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
             heap.insert(null);
             fail("Expected IllegalArgumentException");
         } catch (IllegalArgumentException ex) {
-
+            // This is ok: do nothing
         }
     }
 
@@ -111,7 +112,7 @@ public class TestArrayHeapFunctionality extends BaseTest {
             heap.peekMin();
             fail("Expected EmptyContainerException");
         } catch (EmptyContainerException ex) {
-
+            // This is ok: do nothing
         }
     }
 
@@ -147,5 +148,15 @@ public class TestArrayHeapFunctionality extends BaseTest {
 
         assertEquals(0, heap.peekMin());
         assertEquals(6, heap.size());
+    }
+
+    @Test(timeout = SECOND)
+    public void testDifferentType() {
+        IPriorityQueue<Character> heap = this.makeInstance();
+        for (char i = 'a'; i <= 'z'; i++) {
+            heap.insert(i);
+        }
+        assertEquals('a', heap.peekMin());
+        assertEquals(26, heap.size());
     }
 }

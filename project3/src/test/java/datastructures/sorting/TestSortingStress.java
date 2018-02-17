@@ -10,8 +10,6 @@ import datastructures.concrete.DoubleLinkedList;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.IPriorityQueue;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  * See spec for details on what kinds of tests this class should include.
  */
@@ -23,28 +21,25 @@ public class TestSortingStress extends BaseTest {
         for (int i = 0; i < rep; i++) {
             heap.insert(i);
         }
-        assertEquals(rep, heap.size());
         assertEquals(0, heap.peekMin());
-
-        for (int i = rep; i > 0; i--) {
-            heap.removeMin();
+        assertEquals(rep, heap.size());
+        for (int i = 0; i < rep; i++) {
+            assertEquals(i, heap.removeMin());
         }
-        assertTrue(heap.isEmpty());
     }
 
     @Test(timeout = 10 * SECOND)
-    public void testInsertAndremoveMinManyReversely() {
+    public void testInsertReverselyAndremoveMinMany() {
         IPriorityQueue<Integer> heap = new ArrayHeap<>();
         int rep = 150000;
         for (int i = rep; i >= 0; i--) {
             heap.insert(i);
         }
         assertEquals(0, heap.peekMin());
-        assertEquals(150001, heap.size());
+        assertEquals(rep + 1, heap.size());
         for (int i = 0; i < rep; i++) {
-            heap.removeMin();
+            assertEquals(i, heap.removeMin());
         }
-        assertTrue(heap.isEmpty());
     }
 
     @Test(timeout = 10 * SECOND)
@@ -52,7 +47,7 @@ public class TestSortingStress extends BaseTest {
         IPriorityQueue<Integer> heap = new ArrayHeap<>();
         int cap = 500000;
         for (int i = 0; i < cap; i++) {
-            heap.insert(i * 2);
+            heap.insert(i);
         }
         assertEquals(cap, heap.size());
     }
@@ -60,21 +55,40 @@ public class TestSortingStress extends BaseTest {
     @Test(timeout = 10 * SECOND)
     public void testInsertReverselyIsEfficient() {
         IPriorityQueue<Integer> heap = new ArrayHeap<>();
-        int cap = 500000;
-        for (int i = cap; i > 0; i++) {
-            heap.insert(i * 2);
+        int cap = 100000;
+        for (int i = cap; i > 0; i--) {
+            heap.insert(i);
         }
         assertEquals(cap, heap.size());
     }
 
     @Test(timeout = 10 * SECOND)
-    public void testSortingManyList() {
+    public void testAddingManyandSorting() {
         IList<Integer> list = new DoubleLinkedList<>();
         int rep = 500000;
         for (int i = 0; i < rep; i++) {
             list.add(i);
         }
-        IList<Integer> top = Searcher.topKSort(rep, list);
+        IList<Integer> top = Searcher.topKSort(5, list);
         assertEquals(5, top.size());
+        for (int i = 0; i < top.size(); i++) {
+            assertEquals(499995 + i, top.get(i));
+        }
+    }
+
+    @Test(timeout = 10 * SECOND)
+    public void testSortingManyNumbers() {
+        IList<Integer> list = new DoubleLinkedList<>();
+        int rep = 500000;
+        for (int i = rep; i > 0; i--) {
+            list.add(i);
+        }
+        IList<Integer> top = Searcher.topKSort(rep, list);
+        assertEquals(rep, top.size());
+        int i = 1;
+        for (int num : top) {
+            assertEquals(i, num);
+            i++;
+        }
     }
 }
