@@ -1,6 +1,9 @@
 package search.analyzers;
 
+import datastructures.concrete.ChainedHashSet;
+import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.interfaces.IDictionary;
+import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
 import misc.exceptions.NotYetImplementedException;
 import search.models.Webpage;
@@ -36,10 +39,10 @@ public class PageRankAnalyzer {
         // on this class.
 
         // Step 1: Make a graph representing the 'internet'
-        //IDictionary<URI, ISet<URI>> graph = this.makeGraph(webpages);
+        IDictionary<URI, ISet<URI>> graph = this.makeGraph(webpages);
 
         // Step 2: Use this graph to compute the page rank for each webpage
-        //this.pageRanks = this.makePageRanks(graph, decay, limit, epsilon);
+        this.pageRanks = this.makePageRanks(graph, decay, limit, epsilon);
 
         // Note: we don't store the graph as a field: once we've computed the
         // page ranks, we no longer need it!
@@ -57,7 +60,25 @@ public class PageRankAnalyzer {
      * entirely "self-contained".
      */
     private IDictionary<URI, ISet<URI>> makeGraph(ISet<Webpage> webpages) {
-        throw new NotYetImplementedException();
+        // get all the uri
+        ISet<URI> uri = new ChainedHashSet<>();
+        for (Webpage webpage : webpages) {
+            uri.add(webpage.getUri());
+        }
+        
+        // build graph
+        IDictionary<URI, ISet<URI>> graph = new ChainedHashDictionary<>();
+        for (Webpage webpage : webpages) {
+            ISet<URI> value = new ChainedHashSet<>();
+            for (URI link : webpage.getLinks()) {
+                // valid link
+                if (uri.contains(link) && !link.equals(webpage.getUri())) {
+                    value.add(link);
+                }
+            }
+            graph.put(webpage.getUri(), value);
+        }
+        return graph;
     }
 
     /**
