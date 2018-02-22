@@ -28,7 +28,7 @@ public class TfIdfAnalyzer {
     private IDictionary<URI, IDictionary<String, Double>> documentTfIdfVectors;
 
     // Feel free to add extra fields and helper methods.
-
+    private IDictionary<URI, Double> documentNormVector;
     public TfIdfAnalyzer(ISet<Webpage> webpages) {
         // Implementation note: We have commented these method calls out so your
         // search engine doesn't immediately crash when you try running it for the
@@ -38,11 +38,13 @@ public class TfIdfAnalyzer {
         // on this class.
         this.idfScores = this.computeIdfScores(webpages);
         this.documentTfIdfVectors = this.computeAllDocumentTfIdfVectors(webpages);
+        this.documentNormVector = this.computeDocumentNormVector(webpages);
     }
 
     // Note: this method, strictly speaking, doesn't need to exist. However,
     // we've included it so we can add some unit tests to help verify that your
     // constructor correctly initializes your fields.
+   
     public IDictionary<URI, IDictionary<String, Double>> getDocumentTfIdfVectors() {
         return this.documentTfIdfVectors;
     }
@@ -145,7 +147,7 @@ public class TfIdfAnalyzer {
             }
         }
 
-        denominator = norm(documentVector) * norm(queryVector);
+        denominator = this.documentNormVector.get(pageUri) * norm(queryVector);
         if (denominator != 0) {
             return numerator / denominator;
         }
@@ -173,4 +175,13 @@ public class TfIdfAnalyzer {
         }
         return queryVector;
     }
+    
+    private IDictionary<URI, Double> computeDocumentNormVector(ISet<Webpage> webpages) {
+        IDictionary<URI, Double> documentNormVector = new ChainedHashDictionary<>();
+        for (Webpage page : webpages) {
+            documentNormVector.put(page.getUri(), norm(documentTfIdfVectors.get(page.getUri())));
+        }
+        return documentNormVector;
+    }
+ 
 }
