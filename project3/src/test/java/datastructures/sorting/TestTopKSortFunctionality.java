@@ -102,4 +102,27 @@ public class TestTopKSortFunctionality extends BaseTest {
             assertEquals(list2.get(i), top.get(i));
         }
     }
+
+    @Test(timeout = SECOND)
+    public void testSortingKzero() {
+        IList<Integer> list = new DoubleLinkedList<>();
+        for (int i = 0; i < 20; i++) {
+            list.add(i);
+        }
+        IList<Integer> top = Searcher.topKSort(0, list);
+        assertEquals(0, top.size());
+    }
+
+    @Test(timeout = SECOND)
+    public void testSortingKlessthanN() {
+        IList<Integer> list = new DoubleLinkedList<>();
+        list.add(3);
+        list.add(4);
+        list.add(1);
+        IList<Integer> top = Searcher.topKSort(6, list);
+        assertEquals(3, top.size());
+        assertEquals(1, top.get(0));
+        assertEquals(3, top.get(1));
+        assertEquals(4, top.get(2));
+    }
 }

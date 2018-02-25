@@ -56,24 +56,22 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     }
 
     private void percolateDown(int index) {
-        if (NUM_CHILDREN * index + 1 <= this.heapSize - 1) {
-            T temp = this.heap[index]; // parent
-            int newIndex = NUM_CHILDREN * index + 1;
-            T min = this.heap[NUM_CHILDREN * index + 1];
-            for (int j = 1; j <= NUM_CHILDREN; j++) {
-                if (this.heap[NUM_CHILDREN * index + j] != null) {
-                    T current = this.heap[NUM_CHILDREN * index + j];
-                    if (current.compareTo(min) < 0) {
-                        min = current;
-                        newIndex = NUM_CHILDREN * index + j;
-                    }
+        T min = null;
+        int child_num = index;
+        for (int i = 1; i <= NUM_CHILDREN; i++) {
+            if (NUM_CHILDREN * index + i < this.heapSize && heap[NUM_CHILDREN * index + i] != null
+                    && heap[NUM_CHILDREN * index + i].compareTo(heap[index]) < 0) {
+                if (min == null || min != null 
+                        && heap[index * NUM_CHILDREN + i].compareTo(min) < 0) {
+                    min = heap[index * NUM_CHILDREN + i];
+                    child_num = i;
                 }
             }
-            if (this.heap[index].compareTo(this.heap[newIndex]) > 0) {
-                this.heap[index] = this.heap[newIndex]; // parent = child
-                this.heap[newIndex] = temp; // child = parent
-                percolateDown(newIndex);
-            }
+        }
+        if (min != null) {
+            heap[index * NUM_CHILDREN + child_num] = heap[index];
+            heap[index] = min;
+            percolateDown(index * NUM_CHILDREN + child_num);
         }
     }
 
