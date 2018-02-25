@@ -128,57 +128,31 @@ public class PageRankAnalyzer {
         return newPageRanks;
     }
 
-    private IDictionary<URI, Double> step2(IDictionary<URI, Double> firstPageRanks,
+    private IDictionary<URI, Double> step2(IDictionary<URI, Double> oldPageRanks,
             IDictionary<URI, ISet<URI>> graph, double decay) {
         IDictionary<URI, Double> newPageRanks = new ChainedHashDictionary<>();
-        for (KVPair<URI, Double> pair : firstPageRanks) {
+        for (KVPair<URI, Double> pair : oldPageRanks) {
             newPageRanks.put(pair.getKey(), 0.0);
         }
         for (KVPair<URI, ISet<URI>> pair : graph) {
             if (pair.getValue().size() != 0) {
-                /*
-                double sumOtherLinks = sumLinks(graph, firstPageRanks, decay);
-                firstPageRanks.put(pair.getKey(), sumOtherLinks + ((1.0 - decay) / graph.size()));
-                newPageRanks.put(pair.getKey(), firstPageRanks.get(pair.getKey()));
-                */
-                for (URI uri : pair.getValue()) {
-                    newPageRanks.put(uri, newPageRanks.get(uri) +
-                            decay * (firstPageRanks.get(uri) / pair.getValue().size()));
-                }
-            } else {
-                IDictionary<URI, Double> currentPageRanks = new ChainedHashDictionary<>();
-                for (KVPair<URI, ISet<URI>> tempPair : graph) {
-                    if (newPageRanks.containsKey(tempPair.getKey())) {
-                        currentPageRanks.put(tempPair.getKey(), newPageRanks.get(tempPair.getKey()));
-                    } else {
-                        currentPageRanks.put(tempPair.getKey(), firstPageRanks.get(tempPair.getKey()));
+                for (KVPair<URI, ISet<URI>> otherPair : graph) {
+                    if (!otherPair.getKey().equals(pair.getKey())) {
+                        if (otherPair.getValue().contains(pair.getKey())) {
+                            newPageRanks.put(pair.getKey(), newPageRanks.get(pair.getKey()) + decay * (oldPageRanks.get(otherPair.getKey()) / otherPair.getValue().size()));
+                        }
                     }
                 }
-                for (KVPair<URI, Double> pageRank : currentPageRanks) {
-                    newPageRanks.put(pair.getKey(),
-                            pageRank.getValue() + decay * (pageRank.getValue() / graph.size()));
+            } else {
+                for (KVPair<URI, ISet<URI>> tempPair : graph) {
+                    newPageRanks.put(tempPair.getKey(), newPageRanks.get(tempPair.getKey()) + decay * (oldPageRanks.get(tempPair.getKey()) / graph.size()));
                 }
-                // newPageRanks.put(pair.getKey(), decay * (firstPageRanks.get(pair.getKey()) / graph.size()) + ((1.0 - decay) / graph.size()));
             }
-        }
-        for (KVPair<URI, ISet<URI>> pair : graph) {
-            newPageRanks.put(pair.getKey(),
-                    newPageRanks.get(pair.getKey()) + ((1 - decay) / graph.size()));
+            newPageRanks.put(pair.getKey(), newPageRanks.get(pair.getKey()) + (1 - decay) / graph.size());
         }
         return newPageRanks;
     }
     
-    private double sumLinks(IDictionary<URI, ISet<URI>> graph, IDictionary<URI, Double> firstPageRanks,
-            double decay) {
-        double sum = 0.0;
-        for (KVPair<URI, ISet<URI>> pair : graph) {
-            if (pair.getValue().size() != 0) {
-                sum += decay * (firstPageRanks.get(pair.getKey()) / pair.getValue().size());
-            }
-        }
-        return sum;
-    }
-
     /**
      * Returns the page rank of the given URI.
      *
