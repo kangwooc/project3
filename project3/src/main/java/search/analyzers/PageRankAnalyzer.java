@@ -1,4 +1,3 @@
-// same epsilon?
 package search.analyzers;
 
 import datastructures.concrete.ChainedHashSet;
@@ -11,9 +10,9 @@ import search.models.Webpage;
 import java.net.URI;
 
 /**
- * This class is responsible for computing the 'page rank' of all available webpages.
- * If a webpage has many different links to it, it should have a higher page rank.
- * See the spec for more details.
+ * This class is responsible for computing the 'page rank' of all available
+ * webpages. If a webpage has many different links to it, it should have a
+ * higher page rank. See the spec for more details.
  */
 public class PageRankAnalyzer {
     private IDictionary<URI, Double> pageRanks;
@@ -22,13 +21,17 @@ public class PageRankAnalyzer {
      * Computes a graph representing the internet and computes the page rank of all
      * available webpages.
      *
-     * @param webpages  A set of all webpages we have parsed.
-     * @param decay     Represents the "decay" factor when computing page rank (see spec).
-     * @param epsilon   When the difference in page ranks is less then or equal to this number,
-     *                  stop iterating.
-     * @param limit     The maximum number of iterations we spend computing page rank. This value
-     *                  is meant as a safety valve to prevent us from infinite looping in case our
-     *                  page rank never converges.
+     * @param webpages
+     *            A set of all webpages we have parsed.
+     * @param decay
+     *            Represents the "decay" factor when computing page rank (see spec).
+     * @param epsilon
+     *            When the difference in page ranks is less then or equal to this
+     *            number, stop iterating.
+     * @param limit
+     *            The maximum number of iterations we spend computing page rank.
+     *            This value is meant as a safety valve to prevent us from infinite
+     *            looping in case our page rank never converges.
      */
     public PageRankAnalyzer(ISet<Webpage> webpages, double decay, double epsilon, int limit) {
         // Implementation note: We have commented these method calls out so your
@@ -49,15 +52,15 @@ public class PageRankAnalyzer {
     }
 
     /**
-     * This method converts a set of webpages into an unweighted, directed graph,
-     * in adjacency list form.
+     * This method converts a set of webpages into an unweighted, directed graph, in
+     * adjacency list form.
      *
      * You may assume that each webpage can be uniquely identified by its URI.
      *
      * Note that a webpage may contain links to other webpages that are *not*
-     * included within set of webpages you were given. You should omit these
-     * links from your graph: we want the final graph we build to be
-     * entirely "self-contained".
+     * included within set of webpages you were given. You should omit these links
+     * from your graph: we want the final graph we build to be entirely
+     * "self-contained".
      */
     private IDictionary<URI, ISet<URI>> makeGraph(ISet<Webpage> webpages) {
         // get all the uri
@@ -65,7 +68,7 @@ public class PageRankAnalyzer {
         for (Webpage webpage : webpages) {
             uri.add(webpage.getUri());
         }
-        
+
         // build graph
         IDictionary<URI, ISet<URI>> graph = new ChainedHashDictionary<>();
         for (Webpage webpage : webpages) {
@@ -86,27 +89,24 @@ public class PageRankAnalyzer {
      *
      * Precondition: assumes 'this.graphs' has previously been initialized.
      *
-     * @param decay     Represents the "decay" factor when computing page rank (see spec).
-     * @param epsilon   When the difference in page ranks is less then or equal to this number,
-     *                  stop iterating.
-     * @param limit     The maximum number of iterations we spend computing page rank. This value
-     *                  is meant as a safety valve to prevent us from infinite looping in case our
-     *                  page rank never converges.
+     * @param decay
+     *            Represents the "decay" factor when computing page rank (see spec).
+     * @param epsilon
+     *            When the difference in page ranks is less then or equal to this
+     *            number, stop iterating.
+     * @param limit
+     *            The maximum number of iterations we spend computing page rank.
+     *            This value is meant as a safety valve to prevent us from infinite
+     *            looping in case our page rank never converges.
      */
-    private IDictionary<URI, Double> makePageRanks(IDictionary<URI, ISet<URI>> graph, double decay,
-            int limit, double epsilon) {
+    private IDictionary<URI, Double> makePageRanks(IDictionary<URI, ISet<URI>> graph, double decay, int limit,
+            double epsilon) {
         // Step 1: The initialize step should go here
         IDictionary<URI, Double> firstPageRanks = new ChainedHashDictionary<>();
-        /*
-        ISet<URI> keys = new ChainedHashSet<>();
-        for (KVPair<URI, ISet<URI>> pair : graph) {
-            keys.add(pair.getKey());
-        }
-        */
         for (KVPair<URI, ISet<URI>> pair : graph) {
             firstPageRanks.put(pair.getKey(), 1.0 / graph.size());
         }
-        
+
         // Step 2: The update step should go here
         IDictionary<URI, Double> newPageRanks = step2(firstPageRanks, graph, decay);
         for (int i = 1; i < limit; i++) {
@@ -128,62 +128,36 @@ public class PageRankAnalyzer {
         return newPageRanks;
     }
 
-    private IDictionary<URI, Double> step2(IDictionary<URI, Double> firstPageRanks,
-            IDictionary<URI, ISet<URI>> graph, double decay) {
+    private IDictionary<URI, Double> step2(IDictionary<URI, Double> oldPageRanks, IDictionary<URI, ISet<URI>> graph,
+            double decay) {
         IDictionary<URI, Double> newPageRanks = new ChainedHashDictionary<>();
-        for (KVPair<URI, Double> pair : firstPageRanks) {
+        for (KVPair<URI, Double> pair : oldPageRanks) {
             newPageRanks.put(pair.getKey(), 0.0);
         }
         for (KVPair<URI, ISet<URI>> pair : graph) {
             if (pair.getValue().size() != 0) {
-                /*
-                double sumOtherLinks = sumLinks(graph, firstPageRanks, decay);
-                firstPageRanks.put(pair.getKey(), sumOtherLinks + ((1.0 - decay) / graph.size()));
-                newPageRanks.put(pair.getKey(), firstPageRanks.get(pair.getKey()));
-                */
-                for (URI uri : pair.getValue()) {
-                    newPageRanks.put(uri, newPageRanks.get(uri) +
-                            decay * (firstPageRanks.get(uri) / pair.getValue().size()));
-                }
-            } else {
-                IDictionary<URI, Double> currentPageRanks = new ChainedHashDictionary<>();
-                for (KVPair<URI, ISet<URI>> tempPair : graph) {
-                    if (newPageRanks.containsKey(tempPair.getKey())) {
-                        currentPageRanks.put(tempPair.getKey(), newPageRanks.get(tempPair.getKey()));
-                    } else {
-                        currentPageRanks.put(tempPair.getKey(), firstPageRanks.get(tempPair.getKey()));
+                for (KVPair<URI, ISet<URI>> otherPair : graph) {
+                    if (!otherPair.getKey().equals(pair.getKey()) && otherPair.getValue().contains(pair.getKey())) {
+                        newPageRanks.put(pair.getKey(), newPageRanks.get(pair.getKey())
+                                + decay * (oldPageRanks.get(otherPair.getKey()) / otherPair.getValue().size()));
                     }
                 }
-                for (KVPair<URI, Double> pageRank : currentPageRanks) {
-                    newPageRanks.put(pair.getKey(),
-                            pageRank.getValue() + decay * (pageRank.getValue() / graph.size()));
+            } else {
+                for (KVPair<URI, ISet<URI>> tempPair : graph) {
+                    newPageRanks.put(tempPair.getKey(), newPageRanks.get(tempPair.getKey())
+                            + decay * (oldPageRanks.get(tempPair.getKey()) / graph.size()));
                 }
-                // newPageRanks.put(pair.getKey(), decay * (firstPageRanks.get(pair.getKey()) / graph.size()) + ((1.0 - decay) / graph.size()));
             }
-        }
-        for (KVPair<URI, ISet<URI>> pair : graph) {
-            newPageRanks.put(pair.getKey(),
-                    newPageRanks.get(pair.getKey()) + ((1 - decay) / graph.size()));
+            newPageRanks.put(pair.getKey(), newPageRanks.get(pair.getKey()) + (1 - decay) / graph.size());
         }
         return newPageRanks;
-    }
-    
-    private double sumLinks(IDictionary<URI, ISet<URI>> graph, IDictionary<URI, Double> firstPageRanks,
-            double decay) {
-        double sum = 0.0;
-        for (KVPair<URI, ISet<URI>> pair : graph) {
-            if (pair.getValue().size() != 0) {
-                sum += decay * (firstPageRanks.get(pair.getKey()) / pair.getValue().size());
-            }
-        }
-        return sum;
     }
 
     /**
      * Returns the page rank of the given URI.
      *
      * Precondition: the given uri must have been one of the uris within the list of
-     *               webpages given to the constructor.
+     * webpages given to the constructor.
      */
     public double computePageRank(URI pageUri) {
         // Implementation note: this method should be very simple: just one line!
