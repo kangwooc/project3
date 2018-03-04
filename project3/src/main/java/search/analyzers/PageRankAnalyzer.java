@@ -135,17 +135,18 @@ public class PageRankAnalyzer {
             newPageRanks.put(pair.getKey(), 0.0);
         }
         for (KVPair<URI, ISet<URI>> pair : graph) {
-            if (pair.getValue().size() != 0) {
-                for (KVPair<URI, ISet<URI>> otherPair : graph) {
-                    if (!otherPair.getKey().equals(pair.getKey()) && otherPair.getValue().contains(pair.getKey())) {
+            for (KVPair<URI, ISet<URI>> otherPair : graph) {
+                if (!otherPair.getKey().equals(pair.getKey())) {
+                    if (otherPair.getValue().contains(pair.getKey())) {
                         newPageRanks.put(pair.getKey(), newPageRanks.get(pair.getKey())
                                 + decay * (oldPageRanks.get(otherPair.getKey()) / otherPair.getValue().size()));
                     }
                 }
-            } else {
+            }
+            if (pair.getValue().size() == 0) {
                 for (KVPair<URI, ISet<URI>> tempPair : graph) {
                     newPageRanks.put(tempPair.getKey(), newPageRanks.get(tempPair.getKey())
-                            + decay * (oldPageRanks.get(tempPair.getKey()) / graph.size()));
+                            + decay * (oldPageRanks.get(pair.getKey()) / graph.size()));
                 }
             }
             newPageRanks.put(pair.getKey(), newPageRanks.get(pair.getKey()) + (1 - decay) / graph.size());
