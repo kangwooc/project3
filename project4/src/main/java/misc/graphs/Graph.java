@@ -1,6 +1,11 @@
+// undirected (duplicate)
+// self loop (an edge has the same two vertices)
+// parallel edge (a vertex has two edges pointing to the same other vertex)
 package misc.graphs;
 
 import datastructures.concrete.DoubleLinkedList;
+import datastructures.concrete.dictionaries.ChainedHashDictionary;
+import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
 import misc.exceptions.NoPathExistsException;
@@ -51,6 +56,9 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
     //
     // Working with generics is really not the focus of this class, so if you
     // get stuck, let us know we'll try and help you get unstuck as best as we can.
+    private IDictionary<V, IList<V>> graph;
+    private int numVertices;
+    private int numEdges;
 
     /**
      * Constructs a new graph based on the given vertices and edges.
@@ -60,7 +68,26 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      *                                   present in the 'vertices' list
      */
     public Graph(IList<V> vertices, IList<E> edges) {
-        // TODO: Your code here
+        this.graph = new ChainedHashDictionary<>();
+        this.numVertices = 0;
+        this.numEdges = 0;
+        for (E edge : edges) {
+            if (edge.getWeight() < 0 || !vertices.contains(edge.getVertex1()) || 
+                    !vertices.contains(edge.getVertex2())) {
+                throw new IllegalArgumentException();
+            }
+            if (!graph.containsKey(edge.getVertex1())) {
+                graph.put(edge.getVertex1(), new DoubleLinkedList<>());
+                this.numVertices++;
+            }
+            if (!graph.containsKey(edge.getVertex2())) {
+                graph.put(edge.getVertex2(), new DoubleLinkedList<>());
+                this.numVertices++;
+            }
+            graph.get(edge.getVertex1()).add(edge.getVertex2());
+            graph.get(edge.getVertex2()).add(edge.getVertex1());
+            this.numEdges++;
+        }
     }
 
     /**
@@ -87,14 +114,14 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      * Returns the number of vertices contained within this graph.
      */
     public int numVertices() {
-        throw new NotYetImplementedException();
+        return this.numVertices;
     }
 
     /**
      * Returns the number of edges contained within this graph.
      */
     public int numEdges() {
-        throw new NotYetImplementedException();
+        return this.numEdges;
     }
 
     /**
