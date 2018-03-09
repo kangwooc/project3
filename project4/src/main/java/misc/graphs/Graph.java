@@ -3,11 +3,15 @@
 // parallel edge (a vertex has two edges pointing to the same other vertex)
 package misc.graphs;
 
+import datastructures.concrete.ArrayDisjointSet;
+import datastructures.concrete.ChainedHashSet;
 import datastructures.concrete.DoubleLinkedList;
 import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.interfaces.IDictionary;
+import datastructures.interfaces.IDisjointSet;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
+import misc.Searcher;
 import misc.exceptions.NoPathExistsException;
 import misc.exceptions.NotYetImplementedException;
 
@@ -59,6 +63,8 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
     private IDictionary<V, IList<V>> graph;
     private int numVertices;
     private int numEdges;
+    private IList<E> edges;
+    private IList<V> vertices;
 
     /**
      * Constructs a new graph based on the given vertices and edges.
@@ -71,9 +77,11 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
         this.graph = new ChainedHashDictionary<>();
         this.numVertices = 0;
         this.numEdges = 0;
-        for (E edge : edges) {
-            if (edge.getWeight() < 0 || !vertices.contains(edge.getVertex1()) || 
-                    !vertices.contains(edge.getVertex2())) {
+        this.edges = edges;
+        this.vertices = vertices;
+        for (E edge : this.edges) {
+            if (edge.getWeight() < 0 || !this.vertices.contains(edge.getVertex1()) || 
+                    !this.vertices.contains(edge.getVertex2())) {
                 throw new IllegalArgumentException();
             }
             if (!graph.containsKey(edge.getVertex1())) {
@@ -133,7 +141,19 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      * Precondition: the graph does not contain any unconnected components.
      */
     public ISet<E> findMinimumSpanningTree() {
-        throw new NotYetImplementedException();
+        ISet<E> mst = new ChainedHashSet<>();
+        IDisjointSet<V> temp = new ArrayDisjointSet<>();
+        for (V vertex : this.vertices) {
+            temp.makeSet(vertex);
+        }
+        IList<E> sorted = Searcher.topKSort(this.edges.size(), this.edges);
+        for (E edge : sorted) {
+            if (temp.findSet(edge.getVertex1()) != temp.findSet(edge.getVertex2())) {
+                temp.union(edge.getVertex1(), edge.getVertex2());
+                mst.add(edge);
+            }
+        }
+        return mst;
     }
 
     /**
