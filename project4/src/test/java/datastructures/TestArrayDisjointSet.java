@@ -54,12 +54,12 @@ public class TestArrayDisjointSet extends BaseTest {
     public void testUnionUnequalTrees() {
         String[] items = new String[] {"a", "b", "c", "d", "e"};
         IDisjointSet<String> forest = this.createForest(items);
-
+        
         forest.union("a", "b");
         int id = forest.findSet("a");
-
+        
         forest.union("a", "c");
-
+        
         for (int i = 0; i < 5; i++) {
             check(forest, items, new int[] {id, id, id, 3, 4});
         }

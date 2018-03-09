@@ -106,6 +106,16 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      * Precondition: the graph does not contain any unconnected components.
      */
     public ISet<E> findMinimumSpanningTree() {
+//        KRUSKAL(G):
+//            1 A = ∅
+//            2 foreach v ∈ G.V:
+//            3    MAKE-SET(v)
+//            4 foreach (u, v) in G.E ordered by weight(u, v), increasing:
+//            5    if FIND-SET(u) ≠ FIND-SET(v):
+//            6       A = A ∪ {(u, v)}
+//            7       UNION(u, v)
+//            8 return A
+        
         throw new NotYetImplementedException();
     }
 
@@ -122,6 +132,29 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      * @throws NoPathExistsException  if there does not exist a path from the start to the end
      */
     public IList<E> findShortestPathBetween(V start, V end) {
+//        function Dijkstra(Graph, source):
+//        2
+//        3      create vertex set Q
+//        4
+//        5      for each vertex v in Graph:             // Initialization
+//        6          dist[v] ← INFINITY                  // Unknown distance from source to v
+//        7          prev[v] ← UNDEFINED                 // Previous node in optimal path from source
+//        8          add v to Q                          // All nodes initially in Q (unvisited nodes)
+//        9
+//       10      dist[source] ← 0                        // Distance from source to source
+//       11      
+//       12      while Q is not empty:
+//       13          u ← vertex in Q with min dist[u]    // Node with the least distance
+//       14                                                      // will be selected first
+//       15          remove u from Q 
+//       16          
+//       17          for each neighbor v of u:           // where v is still in Q.
+//       18              alt ← dist[u] + length(u, v)
+//       19              if alt < dist[v]:               // A shorter path to v has been found
+//       20                  dist[v] ← alt 
+//       21                  prev[v] ← u 
+//       22
+//       23      return dist[], prev[]
         throw new NotYetImplementedException();
     }
 }

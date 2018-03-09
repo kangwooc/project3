@@ -130,6 +130,7 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
     public void remove(T item) {
         if (item == null) {
             throw new NoSuchElementException();
-        }
+        } 
+        throw new UnsupportedOperationException();
     }
 }
