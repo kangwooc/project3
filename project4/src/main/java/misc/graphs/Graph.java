@@ -11,6 +11,7 @@ import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IDisjointSet;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
+import misc.Searcher;
 import misc.exceptions.NoPathExistsException;
 import misc.exceptions.NotYetImplementedException;
 import misc.Searcher;
@@ -79,9 +80,9 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
         this.numEdges = 0;
         this.edges = edges;
         this.vertices = vertices;
-        for (E edge : edges) {
-            if (edge.getWeight() < 0 || !vertices.contains(edge.getVertex1()) || 
-                    !vertices.contains(edge.getVertex2())) {
+        for (E edge : this.edges) {
+            if (edge.getWeight() < 0 || !this.vertices.contains(edge.getVertex1()) || 
+                    !this.vertices.contains(edge.getVertex2())) {
                 throw new IllegalArgumentException();
             }
             if (!graph.containsKey(edge.getVertex1())) {
