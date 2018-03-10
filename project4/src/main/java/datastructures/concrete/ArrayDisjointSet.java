@@ -15,7 +15,7 @@ public class ArrayDisjointSet<T> implements IDisjointSet<T> {
     // However, feel free to add more methods and private helper methods.
     // You will probably need to add one or two more fields in order to
     // successfully implement this class.
-    private static final int INITIAL_CAPACITY = 6;
+    private static final int INITIAL_CAPACITY = 12;
     private int size;
     private IDictionary<T, Integer> dic;
 
@@ -30,17 +30,20 @@ public class ArrayDisjointSet<T> implements IDisjointSet<T> {
         if (dic.containsKey(item)) {
             throw new IllegalArgumentException();
         }
-        if (this.size == INITIAL_CAPACITY) {
-            pointers = this.doubleArrayCapacity(pointers);
-        }
-        dic.put(item, this.size);
+        int rank = 0;
+        int index = this.size;
         this.size++;
+        if (index == this.pointers.length) {
+            pointers = this.doubleArrayCapacity();
+        }
+        this.dic.put(item, index);
+        this.pointers[index] = -1 * rank - 1;
     }
 
-    private int[] doubleArrayCapacity(int[] oldArray) {
-        int[] newArray = new int[INITIAL_CAPACITY * 2];
-        for (int i = 0; i < oldArray.length; i++) {
-            newArray[i] = oldArray[i];
+    private int[] doubleArrayCapacity() {
+        int[] newArray = new int[this.pointers.length * 2];
+        for (KVPair<T, Integer> pair : dic) {
+            newArray[pair.getValue()] = pointers[pair.getValue()];
         }
         return newArray;
     }
@@ -50,7 +53,16 @@ public class ArrayDisjointSet<T> implements IDisjointSet<T> {
         if (!dic.containsKey(item)) {
             throw new IllegalArgumentException();
         }
-        return dic.get(item);
+        int index = this.dic.get(item);
+        return findSet(index);
+    }
+
+    private int findSet(int index) {
+        if (this.pointers[index] < 0) {
+            return index;
+        } else {
+            return findSet(this.pointers[index]);
+        }
     }
 
     @Override
@@ -63,12 +75,17 @@ public class ArrayDisjointSet<T> implements IDisjointSet<T> {
 
         if (firstRep == secondRep) {
             throw new IllegalArgumentException();
-        } else if (firstRep > secondRep) {
-            firstRep = secondRep;
-            dic.put(item1, firstRep);
         } else {
-            secondRep = firstRep;
-            dic.put(item2, secondRep);
+            int firstRank = -1 * this.pointers[firstRep] - 1;
+            int secondRank = -1 * this.pointers[secondRep] - 1;
+            if (firstRank < secondRank) {
+                this.pointers[firstRep] = secondRep;
+            } else if (firstRank > secondRank) {
+                this.pointers[secondRep] = firstRep;
+            } else {
+                this.pointers[firstRep] = secondRep;
+                this.pointers[secondRep] = -1 * (secondRank + 1) - 1;
+            }
         }
     }
 }
