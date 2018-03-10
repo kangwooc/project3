@@ -1,10 +1,19 @@
+// undirected (duplicate)
+// self loop (an edge has the same two vertices)
+// parallel edge (a vertex has two edges pointing to the same other vertex)
 package misc.graphs;
 
+import datastructures.concrete.ArrayDisjointSet;
+import datastructures.concrete.ChainedHashSet;
 import datastructures.concrete.DoubleLinkedList;
+import datastructures.concrete.dictionaries.ChainedHashDictionary;
+import datastructures.interfaces.IDictionary;
+import datastructures.interfaces.IDisjointSet;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
 import misc.exceptions.NoPathExistsException;
 import misc.exceptions.NotYetImplementedException;
+import misc.Searcher;
 
 /**
  * Represents an undirected, weighted graph, possibly containing self-loops, parallel edges,
@@ -51,6 +60,11 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
     //
     // Working with generics is really not the focus of this class, so if you
     // get stuck, let us know we'll try and help you get unstuck as best as we can.
+    private IDictionary<V, IList<V>> graph;
+    private int numVertices;
+    private int numEdges;
+    private IList<E> edges;
+    private IList<V> vertices;
 
     /**
      * Constructs a new graph based on the given vertices and edges.
@@ -60,7 +74,28 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      *                                   present in the 'vertices' list
      */
     public Graph(IList<V> vertices, IList<E> edges) {
-        // TODO: Your code here
+        this.graph = new ChainedHashDictionary<>();
+        this.numVertices = 0;
+        this.numEdges = 0;
+        this.edges = edges;
+        this.vertices = vertices;
+        for (E edge : edges) {
+            if (edge.getWeight() < 0 || !vertices.contains(edge.getVertex1()) || 
+                    !vertices.contains(edge.getVertex2())) {
+                throw new IllegalArgumentException();
+            }
+            if (!graph.containsKey(edge.getVertex1())) {
+                graph.put(edge.getVertex1(), new DoubleLinkedList<>());
+                this.numVertices++;
+            }
+            if (!graph.containsKey(edge.getVertex2())) {
+                graph.put(edge.getVertex2(), new DoubleLinkedList<>());
+                this.numVertices++;
+            }
+            graph.get(edge.getVertex1()).add(edge.getVertex2());
+            graph.get(edge.getVertex2()).add(edge.getVertex1());
+            this.numEdges++;
+        }
     }
 
     /**
@@ -87,14 +122,14 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      * Returns the number of vertices contained within this graph.
      */
     public int numVertices() {
-        throw new NotYetImplementedException();
+        return this.numVertices;
     }
 
     /**
      * Returns the number of edges contained within this graph.
      */
     public int numEdges() {
-        throw new NotYetImplementedException();
+        return this.numEdges;
     }
 
     /**
@@ -106,17 +141,19 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      * Precondition: the graph does not contain any unconnected components.
      */
     public ISet<E> findMinimumSpanningTree() {
-//        KRUSKAL(G):
-//            1 A = ∅
-//            2 foreach v ∈ G.V:
-//            3    MAKE-SET(v)
-//            4 foreach (u, v) in G.E ordered by weight(u, v), increasing:
-//            5    if FIND-SET(u) ≠ FIND-SET(v):
-//            6       A = A ∪ {(u, v)}
-//            7       UNION(u, v)
-//            8 return A
-        
-        throw new NotYetImplementedException();
+        ISet<E> mst = new ChainedHashSet<>();
+        IDisjointSet<V> temp = new ArrayDisjointSet<>();
+        for (V vertex : this.vertices) {
+            temp.makeSet(vertex);
+        }
+        IList<E> sorted = Searcher.topKSort(this.edges.size(), this.edges);
+        for (E edge : sorted) {
+            if (temp.findSet(edge.getVertex1()) != temp.findSet(edge.getVertex2())) {
+                temp.union(edge.getVertex1(), edge.getVertex2());
+                mst.add(edge);
+            }
+        }
+        return mst;
     }
 
     /**
@@ -132,29 +169,6 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      * @throws NoPathExistsException  if there does not exist a path from the start to the end
      */
     public IList<E> findShortestPathBetween(V start, V end) {
-//        function Dijkstra(Graph, source):
-//        2
-//        3      create vertex set Q
-//        4
-//        5      for each vertex v in Graph:             // Initialization
-//        6          dist[v] ← INFINITY                  // Unknown distance from source to v
-//        7          prev[v] ← UNDEFINED                 // Previous node in optimal path from source
-//        8          add v to Q                          // All nodes initially in Q (unvisited nodes)
-//        9
-//       10      dist[source] ← 0                        // Distance from source to source
-//       11      
-//       12      while Q is not empty:
-//       13          u ← vertex in Q with min dist[u]    // Node with the least distance
-//       14                                                      // will be selected first
-//       15          remove u from Q 
-//       16          
-//       17          for each neighbor v of u:           // where v is still in Q.
-//       18              alt ← dist[u] + length(u, v)
-//       19              if alt < dist[v]:               // A shorter path to v has been found
-//       20                  dist[v] ← alt 
-//       21                  prev[v] ← u 
-//       22
-//       23      return dist[], prev[]
         throw new NotYetImplementedException();
     }
 }

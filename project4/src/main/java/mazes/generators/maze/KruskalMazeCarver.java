@@ -3,7 +3,9 @@ package mazes.generators.maze;
 import datastructures.concrete.ChainedHashSet;
 import datastructures.interfaces.ISet;
 import mazes.entities.Maze;
+import mazes.entities.Room;
 import mazes.entities.Wall;
+import misc.graphs.Graph;
 
 import java.util.Random;
 
@@ -20,21 +22,17 @@ public class KruskalMazeCarver implements MazeCarver {
         //
         // In particular, if you call 'wall.setDistance()' at any point, make sure to
         // call 'wall.resetDistanceToOriginal()' on the same wall before returning.
-        // KRUSKAL(G):
-        // 1 A = ∅
-        // 2 foreach v ∈ G.V:
-        // 3 MAKE-SET(v)
-        // 4 foreach (u, v) in G.E ordered by weight(u, v), increasing:
-        // 5 if FIND-SET(u) ≠ FIND-SET(v):
-        // 6 A = A ∪ {(u, v)}
-        // 7 UNION(u, v)
-        // 8 return A
         Random rand = new Random();
-        
+        for (Wall wall : maze.getWalls()) {
+            wall.setDistance(rand.nextDouble());
+        }
+        Graph<Room, Wall> mazeGraph = new Graph<>(maze.getRooms(), maze.getWalls());
+        ISet<Wall> wallMST = mazeGraph.findMinimumSpanningTree();
         ISet<Wall> toRemove = new ChainedHashSet<>();
         for (Wall wall : maze.getWalls()) {
-            
-            toRemove.add(wall);
+            if (wallMST.contains(wall) && !maze.getUntouchableWalls().contains(wall)) {
+                toRemove.add(wall);
+            }
         }
         return toRemove;
     }
