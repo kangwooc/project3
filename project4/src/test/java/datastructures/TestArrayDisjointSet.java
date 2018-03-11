@@ -22,19 +22,19 @@ public class TestArrayDisjointSet extends BaseTest {
         }
     }
 
-    @Test(timeout=SECOND)
+    @Test(timeout = SECOND)
     public void testMakeSetAndFindSetSimple() {
-        String[] items = new String[] {"a", "b", "c", "d", "e"};
+        String[] items = new String[] { "a", "b", "c", "d", "e" };
         IDisjointSet<String> forest = this.createForest(items);
 
         for (int i = 0; i < 5; i++) {
-            check(forest, items, new int[] {0, 1, 2, 3, 4});
+            check(forest, items, new int[] { 0, 1, 2, 3, 4 });
         }
     }
 
-    @Test(timeout=SECOND)
+    @Test(timeout = SECOND)
     public void testUnionSimple() {
-        String[] items = new String[] {"a", "b", "c", "d", "e"};
+        String[] items = new String[] { "a", "b", "c", "d", "e" };
         IDisjointSet<String> forest = this.createForest(items);
 
         forest.union("a", "b");
@@ -50,24 +50,24 @@ public class TestArrayDisjointSet extends BaseTest {
         assertEquals(4, forest.findSet("e"));
     }
 
-    @Test(timeout=SECOND)
+    @Test(timeout = SECOND)
     public void testUnionUnequalTrees() {
-        String[] items = new String[] {"a", "b", "c", "d", "e"};
+        String[] items = new String[] { "a", "b", "c", "d", "e" };
         IDisjointSet<String> forest = this.createForest(items);
-        
+
         forest.union("a", "b");
         int id = forest.findSet("a");
-        
+
         forest.union("a", "c");
-        
+
         for (int i = 0; i < 5; i++) {
-            check(forest, items, new int[] {id, id, id, 3, 4});
+            check(forest, items, new int[] { id, id, id, 3, 4 });
         }
     }
 
-    @Test(timeout=SECOND)
+    @Test(timeout = SECOND)
     public void testIllegalFindSet() {
-        String[] items = new String[] {"a", "b", "c", "d", "e"};
+        String[] items = new String[] { "a", "b", "c", "d", "e" };
         IDisjointSet<String> forest = this.createForest(items);
 
         try {
@@ -78,9 +78,9 @@ public class TestArrayDisjointSet extends BaseTest {
         }
     }
 
-    @Test(timeout=SECOND)
+    @Test(timeout = SECOND)
     public void testIllegalUnion() {
-        String[] items = new String[] {"a", "b", "c", "d", "e"};
+        String[] items = new String[] { "a", "b", "c", "d", "e" };
         IDisjointSet<String> forest = this.createForest(items);
 
         try {
@@ -100,7 +100,7 @@ public class TestArrayDisjointSet extends BaseTest {
         }
     }
 
-    @Test(timeout=4 * SECOND)
+    @Test(timeout = 4 * SECOND)
     public void testLargeForest() {
         IDisjointSet<Integer> forest = new ArrayDisjointSet<>();
         forest.makeSet(0);

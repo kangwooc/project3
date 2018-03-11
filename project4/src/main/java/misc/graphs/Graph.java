@@ -47,7 +47,7 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
     // any type the client wants -- there are no restrictions.
     //
     // - 'E' is the type of the edges in the graph. We've contrained Graph
-    // so that E *must* always be an instance of Edge<V> AND Comparable<E>.
+    // so that E must always be an instance of Edge<V> AND Comparable<E>.
     //
     // What this means is that if you have an object of type E, you can use
     // any of the methods from both the Edge interface and from the Comparable
@@ -59,6 +59,7 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
     // Working with generics is really not the focus of this class, so if you
     // get stuck, let us know we'll try and help you get unstuck as best as we can.
     private IDictionary<V, IList<V>> graph;
+    private IDictionary<V, IList<E>> edgesGraph;
     private int numVertices;
     private int numEdges;
     private IList<E> edges;
@@ -75,6 +76,7 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      */
     public Graph(IList<V> vertices, IList<E> edges) {
         this.graph = new ChainedHashDictionary<>();
+        this.edgesGraph = new ChainedHashDictionary<>();
         this.numVertices = 0;
         this.numEdges = 0;
         this.edges = edges;
@@ -88,12 +90,20 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
                 graph.put(edge.getVertex1(), new DoubleLinkedList<>());
                 this.numVertices++;
             }
+            if (!this.edgesGraph.containsKey(edge.getVertex1())) {
+                this.edgesGraph.put(edge.getVertex1(), new DoubleLinkedList<>());
+            }
             if (!graph.containsKey(edge.getVertex2())) {
                 graph.put(edge.getVertex2(), new DoubleLinkedList<>());
                 this.numVertices++;
             }
+            if (!this.edgesGraph.containsKey(edge.getVertex2())) {
+                this.edgesGraph.put(edge.getVertex2(), new DoubleLinkedList<>());
+            }
             graph.get(edge.getVertex1()).add(edge.getVertex2());
             graph.get(edge.getVertex2()).add(edge.getVertex1());
+            this.edgesGraph.get(edge.getVertex1()).insert(0, edge);
+            this.edgesGraph.get(edge.getVertex2()).insert(0, edge);
             this.numEdges++;
         }
     }
@@ -169,42 +179,64 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
      *             if there does not exist a path from the start to the end
      */
     public IList<E> findShortestPathBetween(V start, V end) {
-        // def dijkstra(start):
-        // backpointers = empty Dictionary of vertex to vertex
-        // costs = Dictionary of vertex to double, initialized to infinity
-        // visited = empty Set
-        // heap = new Heap<Node with cost>(); heap.put([start, 0]) cost.put(start, 0)
-        // while (heap is not empty):
-        // current, currentCost = heap.removeMin()
-        // skip if visited.contains(current), else visited.add(current)
-        // for (edge : current.getOutEdges()):
-        // skip if visited.contains(edge.dest), else visited.add(edge.dest)
-        // if (newCost < cost.get(edge.dest)): cost.put(edge.dest, newCost)
-        // heap.insert([edge.dest, newCost]) backpointers.put(edge.dest, current)
-        // return backpointers dictionary
-        VerticeDist startDist = new VerticeDist(start, 0.0);
+        IDictionary<V, E> backpointers = new ChainedHashDictionary<>();
         IList<E> shortestPath = new DoubleLinkedList<>();
-        IDictionary<V, V> backpointers = new ChainedHashDictionary<>();
         IDictionary<V, VerticeDist> costs = new ChainedHashDictionary<>();
-        ISet<VerticeDist> visited = new ChainedHashSet<>();
-        IPriorityQueue<VerticeDist> minHeap = new ArrayHeap<>();
+        ISet<V> visited = new ChainedHashSet<>();
+        IPriorityQueue<VerticeDist> minHeapDist = new ArrayHeap<>();
 
-        costs.put(start, startDist);
-        minHeap.insert(startDist);
-        while (!minHeap.isEmpty()) {
-            VerticeDist current = minHeap.removeMin();
-            if (!visited.contains(current)) {
-                visited.add(current);
+        if (start.equals(end)) {
+            return shortestPath;
+        }
+        for (V vertex : this.vertices) {
+            VerticeDist ver = new VerticeDist(vertex, Double.POSITIVE_INFINITY);
+            if (vertex.equals(start)) {
+                ver.setDistance(0.0);
+            }
+            minHeapDist.insert(ver);
+            costs.put(vertex, ver);
+        }
+        while (!minHeapDist.isEmpty()) {
+            VerticeDist current = minHeapDist.removeMin();
+            V currentVertex = current.getVertex();
+            if (!visited.contains(currentVertex)) {
+                visited.add(currentVertex);
+            }
+            if (end.equals(currentVertex)) {
+                while (!start.equals(currentVertex)) {
+                    E edge = backpointers.get(currentVertex);
+                    shortestPath.insert(0, edge);
+                    currentVertex = edge.getOtherVertex(currentVertex);
+                }
+                return shortestPath;
+            }
+            if (current.getDistance() == Double.POSITIVE_INFINITY || !this.edgesGraph.containsKey(currentVertex)) {
+                throw new NoPathExistsException();
+            } else {
+                for (E edge : this.edgesGraph.get(currentVertex)) {
+                    V neighborVertex = edge.getOtherVertex(currentVertex);
+                    VerticeDist neighbor = costs.get(neighborVertex);
+                    if (!visited.contains(neighborVertex)) {
+                        Double newCost = neighbor.getDistance();
+                        Double newDistance = current.getDistance() + edge.getWeight();
+                        if (newDistance.compareTo(newCost) < 0) {
+                            neighbor.setDistance(newDistance);
+                            costs.put(neighborVertex, neighbor);
+                            minHeapDist.insert(neighbor);
+                            backpointers.put(neighborVertex, edge);
+                        }
+                    }
+                }
             }
         }
-        return shortestPath;
+        throw new NoPathExistsException();
     }
 
     private class VerticeDist implements Comparable<VerticeDist> {
-        private double dist;
+        private Double dist;
         private V vertice;
 
-        public VerticeDist(V vertice, double dist) {
+        public VerticeDist(V vertice, Double dist) {
             this.dist = dist;
             this.vertice = vertice;
         }
@@ -217,10 +249,13 @@ public class Graph<V, E extends Edge<V> & Comparable<E>> {
             return this.dist;
         }
 
-        @Override
-        public int compareTo(Graph<V, E>.VerticeDist o) {
-            return (int) (this.getDistance() - o.getDistance());
+        public void setDistance(double distance) {
+            this.dist = distance;
         }
 
+        @Override
+        public int compareTo(VerticeDist o) {
+            return (int) (this.getDistance() - o.getDistance());
+        }
     }
 }
