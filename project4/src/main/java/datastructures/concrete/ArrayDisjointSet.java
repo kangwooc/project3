@@ -53,15 +53,16 @@ public class ArrayDisjointSet<T> implements IDisjointSet<T> {
         if (!dic.containsKey(item)) {
             throw new IllegalArgumentException();
         }
-        int index = this.dic.get(item);
-        return findSet(index);
+        return findSet(this.dic.get(item));
     }
 
     private int findSet(int index) {
         if (this.pointers[index] < 0) {
             return index;
         } else {
-            return findSet(this.pointers[index]);
+            int result = findSet(this.pointers[index]);
+            this.pointers[index] = result;
+            return result;
         }
     }
 
